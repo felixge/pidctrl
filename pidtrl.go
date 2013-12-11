@@ -28,6 +28,11 @@ func (c *PIDController) Set(setpoint float64) {
 	c.setpoint = setpoint
 }
 
+// Get returns the setpoint of the controller.
+func (c *PIDController) Get() float64 {
+	return c.setpoint
+}
+
 // Update is identical to UpdateDuration, but automatically keeps track of the
 // durations between updates.
 func (c *PIDController) Update(value float64) float64 {
