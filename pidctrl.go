@@ -25,7 +25,6 @@ type PIDController struct {
 	i            float64          // integral gain
 	d            float64          // derrivate gain
 	setpoint     float64          // current setpoint
-	prevSetpoint float64          // last setpoint
 	prevValue    float64          // last process value
 	prevErr      float64          // error from last update
 	integral     float64          // integral sum
@@ -79,11 +78,10 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 		if c.deriveOn == DeriveOnErr {
 			d = (err - c.prevErr) / dt
 		} else {
-			d = ((c.setpoint - c.prevSetpoint) / dt) - ((value - c.prevValue) / dt)
+			d = - ((value - c.prevValue) / dt)
 		}
 	}
 	c.prevValue = value
-	c.prevSetpoint = c.setpoint
 	c.prevErr = err
 	return (c.p * err) + (c.i * c.integral) + (c.d * d)
 }
