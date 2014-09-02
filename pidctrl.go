@@ -21,15 +21,15 @@ func NewPIDController(p, i, d float64) *PIDController {
 
 // PIDController implements a PID controller.
 type PIDController struct {
-	p            float64          // proportional gain
-	i            float64          // integral gain
-	d            float64          // derrivate gain
-	setpoint     float64          // current setpoint
-	prevValue    float64          // last process value
-	prevErr      float64          // error from last update
-	integral     float64          // integral sum
-	lastUpdate   time.Time        // time of last update
-	deriveOn     DeriveMethodType // What do we derive on?
+	p          float64          // proportional gain
+	i          float64          // integral gain
+	d          float64          // derrivate gain
+	setpoint   float64          // current setpoint
+	prevValue  float64          // last process value
+	prevErr    float64          // error from last update
+	integral   float64          // integral sum
+	lastUpdate time.Time        // time of last update
+	deriveOn   DeriveMethodType // What do we derive on?
 }
 
 // Set changes the setpoint of the controller.
@@ -78,7 +78,7 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 		if c.deriveOn == DeriveOnErr {
 			d = (err - c.prevErr) / dt
 		} else {
-			d = - ((value - c.prevValue) / dt)
+			d = -((value - c.prevValue) / dt)
 		}
 	}
 	c.prevValue = value
