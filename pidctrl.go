@@ -53,6 +53,18 @@ func (c *PIDController) GetDeriveMethod() DeriveMethodType {
 	return c.deriveOn
 }
 
+// SetPID changes the P, I, and D constants
+func (c *PIDController) SetPID(p, i, d float64) {
+	c.p = p
+	c.i = i
+	c.d = d
+}
+
+// SetPID returns the P, I, and D constants
+func (c *PIDController) GetPID() (p, i, d float64) {
+	return c.p, c.i, c.d
+}
+
 // Update is identical to UpdateDuration, but automatically keeps track of the
 // durations between updates.
 func (c *PIDController) Update(value float64) float64 {
@@ -74,7 +86,7 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 		err = c.setpoint - value
 		d   float64
 	)
-	c.integral += err * dt
+	c.integral += err * dt * c.i
 	if dt > 0 {
 		if c.deriveOn == DeriveOnErr {
 			d = (err - c.prevErr) / dt
@@ -85,5 +97,5 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	c.prevValue = value
 	c.prevSetpoint = c.setpoint
 	c.prevErr = err
-	return (c.p * err) + (c.i * c.integral) + (c.d * d)
+	return (c.p * err) + c.integral + (c.d * d)
 }
