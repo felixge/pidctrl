@@ -30,6 +30,8 @@ type PIDController struct {
 	integral   float64          // integral sum
 	lastUpdate time.Time        // time of last update
 	deriveOn   DeriveMethodType // What do we derive on?
+	outMin     float64          // Output Min
+	outMax     float64          // Output Max
 }
 
 // Set changes the setpoint of the controller.
@@ -64,6 +66,26 @@ func (c *PIDController) GetPID() (p, i, d float64) {
 	return c.p, c.i, c.d
 }
 
+// SetOutputLimits sets the min and max output values
+func (c *PIDController) SetOutputLimits(min, max float64) {
+	if min > max {
+		return
+	}
+	c.outMin = min
+	c.outMax = max
+
+	if c.integral > c.outMax {
+		c.integral = c.outMax
+	} else if c.integral < c.outMin {
+		c.integral = c.outMin
+	}
+}
+
+// GetOutputLimits sets the min and max output values
+func (c *PIDController) GetOutputLimits() (min, max float64) {
+	return c.outMin, c.outMax
+}
+
 // Update is identical to UpdateDuration, but automatically keeps track of the
 // durations between updates.
 func (c *PIDController) Update(value float64) float64 {
@@ -95,5 +117,15 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	}
 	c.prevValue = value
 	c.prevErr = err
-	return (c.p * err) + c.integral + (c.d * d)
+	output := (c.p * err) + c.integral + (c.d * d)
+
+	if (output > c.outMax) {
+		c.integral -= output - c.outMax
+		output = c.outMax
+	} else if (output < c.outMin) {
+		c.integral += c.outMin - output
+		output = c.outMin
+	}
+
+	return output
 }

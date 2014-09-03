@@ -54,6 +54,12 @@ var tests = []struct {
 			{input: 15, duration: time.Second, output: -5},
 			{input: 100, duration: time.Second, output: -132.5},
 			{setpoint: 1, duration: time.Second, input: 0, output: 1.5},
+			{input: 100, duration: time.Second, output: -150},
+			{input: 115, duration: time.Second, output: -150},
+			{input: 130, duration: time.Second, output: -150},
+			{input: 99, duration: time.Second, output: -150},
+			{input: 0, duration: time.Second, output: -66},
+			{input: -10, duration: time.Second, output: -100},
 		},
 	},
 }
@@ -80,6 +86,7 @@ func TestUpdate_p(t *testing.T) {
 	for i, test := range tests {
 		t.Logf("-- test #%d", i+1)
 		c := NewPIDController(test.p, test.i, test.d)
+		c.SetOutputLimits(-150, 10)
 		for _, u := range test.updates {
 			if err := u.check(c); err != nil {
 				t.Error(err)
