@@ -59,7 +59,7 @@ func (c *PIDController) SetPID(p, i, d float64) {
 	c.d = d
 }
 
-// SetPID returns the P, I, and D constants
+// GetPID returns the P, I, and D constants
 func (c *PIDController) GetPID() (p, i, d float64) {
 	return c.p, c.i, c.d
 }
