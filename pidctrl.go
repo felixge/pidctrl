@@ -14,13 +14,13 @@ func NewPIDController(p, i, d float64) *PIDController {
 
 // PIDController implements a PID controller.
 type PIDController struct {
-	p          float64          // proportional gain
-	i          float64          // integral gain
-	d          float64          // derrivate gain
-	setpoint   float64          // current setpoint
-	prevValue  float64          // last process value
-	integral   float64          // integral sum
-	lastUpdate time.Time        // time of last update
+	p          float64   // proportional gain
+	i          float64   // integral gain
+	d          float64   // derrivate gain
+	setpoint   float64   // current setpoint
+	prevValue  float64   // last process value
+	integral   float64   // integral sum
+	lastUpdate time.Time // time of last update
 }
 
 // Set changes the setpoint of the controller.
@@ -56,7 +56,7 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	)
 	c.integral += err * dt
 	if dt > 0 {
-			d = -((value - c.prevValue) / dt)
+		d = -((value - c.prevValue) / dt)
 	}
 	c.prevValue = value
 	return (c.p * err) + (c.i * c.integral) + (c.d * d)
