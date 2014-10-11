@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-type DeriveMethodType int
-
-const (
-	DeriveOnErr DeriveMethodType = iota
-	DeriveOnValue
-)
-
 // NewPIDController returns a new PIDController using the given gain values.
 func NewPIDController(p, i, d float64) *PIDController {
 	return &PIDController{p: p, i: i, d: d}
@@ -26,10 +19,8 @@ type PIDController struct {
 	d          float64          // derrivate gain
 	setpoint   float64          // current setpoint
 	prevValue  float64          // last process value
-	prevErr    float64          // error from last update
 	integral   float64          // integral sum
 	lastUpdate time.Time        // time of last update
-	deriveOn   DeriveMethodType // What do we derive on?
 }
 
 // Set changes the setpoint of the controller.
@@ -40,16 +31,6 @@ func (c *PIDController) Set(setpoint float64) {
 // Get returns the setpoint of the controller.
 func (c *PIDController) Get() float64 {
 	return c.setpoint
-}
-
-// SetDeriveMethod changes the derivation method.
-func (c *PIDController) SetDeriveMethod(dm DeriveMethodType) {
-	c.deriveOn = dm
-}
-
-// GetDeriveMethod returns the derivation method.
-func (c *PIDController) GetDeriveMethod() DeriveMethodType {
-	return c.deriveOn
 }
 
 // Update is identical to UpdateDuration, but automatically keeps track of the
@@ -75,13 +56,8 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	)
 	c.integral += err * dt
 	if dt > 0 {
-		if c.deriveOn == DeriveOnErr {
-			d = (err - c.prevErr) / dt
-		} else {
 			d = -((value - c.prevValue) / dt)
-		}
 	}
 	c.prevValue = value
-	c.prevErr = err
 	return (c.p * err) + (c.i * c.integral) + (c.d * d)
 }
