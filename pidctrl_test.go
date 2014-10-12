@@ -38,7 +38,7 @@ var tests = []struct {
 	{
 		d: 0.5,
 		updates: []*testUpdate{
-			{setpoint: 10, input: 5, duration: time.Second, output: 2.5},
+			{setpoint: 10, input: 5, duration: time.Second, output: -2.5},
 			{input: 5, duration: time.Second, output: 0},
 			{input: 10, duration: time.Second, output: -2.5},
 		},
@@ -49,11 +49,11 @@ var tests = []struct {
 		i: 0.5,
 		d: 0.5,
 		updates: []*testUpdate{
-			{setpoint: 10, input: 5, duration: time.Second, output: 7.5},
+			{setpoint: 10, input: 5, duration: time.Second, output: 2.5},
 			{input: 10, duration: time.Second, output: 0},
 			{input: 15, duration: time.Second, output: -5},
 			{input: 100, duration: time.Second, output: -132.5},
-			{setpoint: 1, duration: time.Second, input: 0, output: 1.5},
+			{setpoint: 1, duration: time.Second, input: 0, output: 6},
 		},
 	},
 }
