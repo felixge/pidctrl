@@ -40,8 +40,8 @@ func (c *PIDController) SetPID(p, i, d float64) {
 	c.d = d
 }
 
-// GetPID returns the P, I, and D constants
-func (c *PIDController) GetPID() (p, i, d float64) {
+// PID returns the P, I, and D constants
+func (c *PIDController) PID() (p, i, d float64) {
 	return c.p, c.i, c.d
 }
 
