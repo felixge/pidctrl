@@ -62,8 +62,8 @@ func (c *PIDController) SetOutputLimits(min, max float64) {
 	}
 }
 
-// GetOutputLimits sets the min and max output values
-func (c *PIDController) GetOutputLimits() (min, max float64) {
+// OutputLimits sets the min and max output values
+func (c *PIDController) OutputLimits() (min, max float64) {
 	return c.outMin, c.outMax
 }
 
