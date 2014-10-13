@@ -33,6 +33,18 @@ func (c *PIDController) Get() float64 {
 	return c.setpoint
 }
 
+// SetPID changes the P, I, and D constants
+func (c *PIDController) SetPID(p, i, d float64) {
+	c.p = p
+	c.i = i
+	c.d = d
+}
+
+// PID returns the P, I, and D constants
+func (c *PIDController) PID() (p, i, d float64) {
+	return c.p, c.i, c.d
+}
+
 // Update is identical to UpdateDuration, but automatically keeps track of the
 // durations between updates.
 func (c *PIDController) Update(value float64) float64 {
@@ -54,10 +66,10 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 		err = c.setpoint - value
 		d   float64
 	)
-	c.integral += err * dt
+	c.integral += err * dt * c.i
 	if dt > 0 {
 		d = -((value - c.prevValue) / dt)
 	}
 	c.prevValue = value
-	return (c.p * err) + (c.i * c.integral) + (c.d * d)
+	return (c.p * err) + c.integral + (c.d * d)
 }
