@@ -4,12 +4,13 @@
 package pidctrl
 
 import (
+	"math"
 	"time"
 )
 
 // NewPIDController returns a new PIDController using the given gain values.
 func NewPIDController(p, i, d float64) *PIDController {
-	return &PIDController{p: p, i: i, d: d}
+	return &PIDController{p: p, i: i, d: d, outMin: math.Inf(-1), outMax: math.Inf(0)}
 }
 
 // PIDController implements a PID controller.
