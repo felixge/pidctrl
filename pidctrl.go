@@ -21,8 +21,8 @@ type PIDController struct {
 	prevValue  float64   // last process value
 	integral   float64   // integral sum
 	lastUpdate time.Time // time of last update
-	outMin     float64          // Output Min
-	outMax     float64          // Output Max
+	outMin     float64   // Output Min
+	outMax     float64   // Output Max
 }
 
 // Set changes the setpoint of the controller.
@@ -95,10 +95,10 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	c.prevValue = value
 	output := (c.p * err) + c.integral + (c.d * d)
 
-	if (output > c.outMax) {
+	if output > c.outMax {
 		c.integral -= output - c.outMax
 		output = c.outMax
-	} else if (output < c.outMin) {
+	} else if output < c.outMin {
 		c.integral += c.outMin - output
 		output = c.outMin
 	}
