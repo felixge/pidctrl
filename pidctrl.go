@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-type DeriveMethodType int
-
-const (
-	DeriveOnErr DeriveMethodType = iota
-	DeriveOnValue
-)
-
 // NewPIDController returns a new PIDController using the given gain values.
 func NewPIDController(p, i, d float64) *PIDController {
 	return &PIDController{p: p, i: i, d: d}
@@ -21,15 +14,13 @@ func NewPIDController(p, i, d float64) *PIDController {
 
 // PIDController implements a PID controller.
 type PIDController struct {
-	p          float64          // proportional gain
-	i          float64          // integral gain
-	d          float64          // derrivate gain
-	setpoint   float64          // current setpoint
-	prevValue  float64          // last process value
-	prevErr    float64          // error from last update
-	integral   float64          // integral sum
-	lastUpdate time.Time        // time of last update
-	deriveOn   DeriveMethodType // What do we derive on?
+	p          float64   // proportional gain
+	i          float64   // integral gain
+	d          float64   // derrivate gain
+	setpoint   float64   // current setpoint
+	prevValue  float64   // last process value
+	integral   float64   // integral sum
+	lastUpdate time.Time // time of last update
 	outMin     float64          // Output Min
 	outMax     float64          // Output Max
 }
@@ -44,16 +35,6 @@ func (c *PIDController) Get() float64 {
 	return c.setpoint
 }
 
-// SetDeriveMethod changes the derivation method.
-func (c *PIDController) SetDeriveMethod(dm DeriveMethodType) {
-	c.deriveOn = dm
-}
-
-// GetDeriveMethod returns the derivation method.
-func (c *PIDController) GetDeriveMethod() DeriveMethodType {
-	return c.deriveOn
-}
-
 // SetPID changes the P, I, and D constants
 func (c *PIDController) SetPID(p, i, d float64) {
 	c.p = p
@@ -61,8 +42,8 @@ func (c *PIDController) SetPID(p, i, d float64) {
 	c.d = d
 }
 
-// GetPID returns the P, I, and D constants
-func (c *PIDController) GetPID() (p, i, d float64) {
+// PID returns the P, I, and D constants
+func (c *PIDController) PID() (p, i, d float64) {
 	return c.p, c.i, c.d
 }
 
@@ -109,14 +90,9 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	)
 	c.integral += err * dt * c.i
 	if dt > 0 {
-		if c.deriveOn == DeriveOnErr {
-			d = (err - c.prevErr) / dt
-		} else {
-			d = -((value - c.prevValue) / dt)
-		}
+		d = -((value - c.prevValue) / dt)
 	}
 	c.prevValue = value
-	c.prevErr = err
 	output := (c.p * err) + c.integral + (c.d * d)
 
 	if (output > c.outMax) {
