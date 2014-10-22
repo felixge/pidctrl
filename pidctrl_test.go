@@ -10,6 +10,8 @@ var tests = []struct {
 	p       float64
 	i       float64
 	d       float64
+	min     float64
+	max     float64
 	updates []*testUpdate
 }{
 	// p-only controller
@@ -56,6 +58,24 @@ var tests = []struct {
 			{setpoint: 1, duration: time.Second, input: 0, output: 6},
 		},
 	},
+	// Thermostat example
+	{
+		p:   0.6,
+		i:   1.2,
+		d:   0.075,
+		max: 1, // on or off
+		updates: []*testUpdate{
+			{setpoint: 72, input: 50, duration: time.Second, output: 1},
+			{input: 51, duration: time.Second, output: 1},
+			{input: 55, duration: time.Second, output: 1},
+			{input: 60, duration: time.Second, output: 1},
+			{input: 75, duration: time.Second, output: 0},
+			{input: 76, duration: time.Second, output: 0},
+			{input: 74, duration: time.Second, output: 0},
+			{input: 72, duration: time.Second, output: 1},
+			{input: 71, duration: time.Second, output: 1},
+		},
+	},
 }
 
 type testUpdate struct {
@@ -80,6 +100,9 @@ func TestUpdate_p(t *testing.T) {
 	for i, test := range tests {
 		t.Logf("-- test #%d", i+1)
 		c := NewPIDController(test.p, test.i, test.d)
+		if test.min != 0 || test.max != 0 {
+			c.SetOutputLimits(test.min, test.max)
+		}
 		for _, u := range test.updates {
 			if err := u.check(c); err != nil {
 				t.Error(err)

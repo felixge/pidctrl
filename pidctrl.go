@@ -4,12 +4,13 @@
 package pidctrl
 
 import (
+	"math"
 	"time"
 )
 
 // NewPIDController returns a new PIDController using the given gain values.
 func NewPIDController(p, i, d float64) *PIDController {
-	return &PIDController{p: p, i: i, d: d}
+	return &PIDController{p: p, i: i, d: d, outMin: math.Inf(-1), outMax: math.Inf(0)}
 }
 
 // PIDController implements a PID controller.
@@ -21,6 +22,8 @@ type PIDController struct {
 	prevValue  float64   // last process value
 	integral   float64   // integral sum
 	lastUpdate time.Time // time of last update
+	outMin     float64   // Output Min
+	outMax     float64   // Output Max
 }
 
 // Set changes the setpoint of the controller.
@@ -43,6 +46,26 @@ func (c *PIDController) SetPID(p, i, d float64) {
 // PID returns the P, I, and D constants
 func (c *PIDController) PID() (p, i, d float64) {
 	return c.p, c.i, c.d
+}
+
+// SetOutputLimits sets the min and max output values
+func (c *PIDController) SetOutputLimits(min, max float64) {
+	if min > max {
+		return
+	}
+	c.outMin = min
+	c.outMax = max
+
+	if c.integral > c.outMax {
+		c.integral = c.outMax
+	} else if c.integral < c.outMin {
+		c.integral = c.outMin
+	}
+}
+
+// OutputLimits sets the min and max output values
+func (c *PIDController) OutputLimits() (min, max float64) {
+	return c.outMin, c.outMax
 }
 
 // Update is identical to UpdateDuration, but automatically keeps track of the
@@ -71,5 +94,15 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 		d = -((value - c.prevValue) / dt)
 	}
 	c.prevValue = value
-	return (c.p * err) + c.integral + (c.d * d)
+	output := (c.p * err) + c.integral + (c.d * d)
+
+	if output > c.outMax {
+		c.integral -= output - c.outMax
+		output = c.outMax
+	} else if output < c.outMin {
+		c.integral += c.outMin - output
+		output = c.outMin
+	}
+
+	return output
 }
