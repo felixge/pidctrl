@@ -4,6 +4,7 @@
 package pidctrl
 
 import (
+	"fmt"
 	"math"
 	"time"
 )
@@ -51,7 +52,7 @@ func (c *PIDController) PID() (p, i, d float64) {
 // SetOutputLimits sets the min and max output values
 func (c *PIDController) SetOutputLimits(min, max float64) {
 	if min > max {
-		return
+		panic(fmt.Sprintf("min: %v is greater than max: %v", min, max))
 	}
 	c.outMin = min
 	c.outMax = max
