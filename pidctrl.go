@@ -9,6 +9,14 @@ import (
 	"time"
 )
 
+type MinMaxError struct {
+	min, max float64
+}
+
+func (e MinMaxError) Error() string {
+	return fmt.Sprintf("min: %v is greater than max: %v", e.min, e.max)
+}
+
 // NewPIDController returns a new PIDController using the given gain values.
 func NewPIDController(p, i, d float64) *PIDController {
 	return &PIDController{p: p, i: i, d: d, outMin: math.Inf(-1), outMax: math.Inf(0)}
@@ -52,7 +60,7 @@ func (c *PIDController) PID() (p, i, d float64) {
 // SetOutputLimits sets the min and max output values
 func (c *PIDController) SetOutputLimits(min, max float64) {
 	if min > max {
-		panic(fmt.Sprintf("min: %v is greater than max: %v", min, max))
+		panic(MinMaxError{min, max})
 	}
 	c.outMin = min
 	c.outMax = max
