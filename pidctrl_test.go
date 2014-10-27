@@ -2,6 +2,7 @@ package pidctrl
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -76,6 +77,15 @@ var tests = []struct {
 			{input: 71, duration: time.Second, output: 1},
 		},
 	},
+	// panic test
+	{
+		p:       0.5,
+		i:       0.5,
+		d:       0.5,
+		min:     100, // min and max are swapped
+		max:     1,
+		updates: []*testUpdate{},
+	},
 }
 
 type testUpdate struct {
@@ -97,6 +107,13 @@ func (u *testUpdate) check(c *PIDController) error {
 }
 
 func TestUpdate_p(t *testing.T) {
+	defer func() {
+		if r := recover(); (reflect.TypeOf(r)).Name() == "MinMaxError" {
+			fmt.Println("Recovered Error:", r)
+		} else {
+			t.Error(r)
+		}
+	}()
 	for i, test := range tests {
 		t.Logf("-- test #%d", i+1)
 		c := NewPIDController(test.p, test.i, test.d)

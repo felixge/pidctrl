@@ -4,9 +4,18 @@
 package pidctrl
 
 import (
+	"fmt"
 	"math"
 	"time"
 )
+
+type MinMaxError struct {
+	min, max float64
+}
+
+func (e MinMaxError) Error() string {
+	return fmt.Sprintf("min: %v is greater than max: %v", e.min, e.max)
+}
 
 // NewPIDController returns a new PIDController using the given gain values.
 func NewPIDController(p, i, d float64) *PIDController {
@@ -51,7 +60,7 @@ func (c *PIDController) PID() (p, i, d float64) {
 // SetOutputLimits sets the min and max output values
 func (c *PIDController) SetOutputLimits(min, max float64) {
 	if min > max {
-		return
+		panic(MinMaxError{min, max})
 	}
 	c.outMin = min
 	c.outMax = max
@@ -63,7 +72,7 @@ func (c *PIDController) SetOutputLimits(min, max float64) {
 	}
 }
 
-// OutputLimits sets the min and max output values
+// OutputLimits returns the min and max output values
 func (c *PIDController) OutputLimits() (min, max float64) {
 	return c.outMin, c.outMax
 }
