@@ -36,8 +36,9 @@ type PIDController struct {
 }
 
 // Set changes the setpoint of the controller.
-func (c *PIDController) Set(setpoint float64) {
+func (c *PIDController) Set(setpoint float64) *PIDController {
 	c.setpoint = setpoint
+	return c
 }
 
 // Get returns the setpoint of the controller.
@@ -46,10 +47,11 @@ func (c *PIDController) Get() float64 {
 }
 
 // SetPID changes the P, I, and D constants
-func (c *PIDController) SetPID(p, i, d float64) {
+func (c *PIDController) SetPID(p, i, d float64) *PIDController {
 	c.p = p
 	c.i = i
 	c.d = d
+	return c
 }
 
 // PID returns the P, I, and D constants
@@ -58,7 +60,7 @@ func (c *PIDController) PID() (p, i, d float64) {
 }
 
 // SetOutputLimits sets the min and max output values
-func (c *PIDController) SetOutputLimits(min, max float64) {
+func (c *PIDController) SetOutputLimits(min, max float64) *PIDController {
 	if min > max {
 		panic(MinMaxError{min, max})
 	}
@@ -70,6 +72,7 @@ func (c *PIDController) SetOutputLimits(min, max float64) {
 	} else if c.integral < c.outMin {
 		c.integral = c.outMin
 	}
+	return c
 }
 
 // OutputLimits returns the min and max output values
