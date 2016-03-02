@@ -102,6 +102,11 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 		d   float64
 	)
 	c.integral += err * dt * c.i
+	if c.integral > c.outMax {
+		c.integral = c.outMax
+	} else if c.integral < c.outMin {
+		c.integral = c.outMin
+	}
 	if dt > 0 {
 		d = -((value - c.prevValue) / dt)
 	}
@@ -109,10 +114,8 @@ func (c *PIDController) UpdateDuration(value float64, duration time.Duration) fl
 	output := (c.p * err) + c.integral + (c.d * d)
 
 	if output > c.outMax {
-		c.integral -= output - c.outMax
 		output = c.outMax
 	} else if output < c.outMin {
-		c.integral += c.outMin - output
 		output = c.outMin
 	}
 
