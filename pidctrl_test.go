@@ -73,8 +73,56 @@ var tests = []struct {
 			{input: 75, duration: time.Second, output: 0},
 			{input: 76, duration: time.Second, output: 0},
 			{input: 74, duration: time.Second, output: 0},
-			{input: 72, duration: time.Second, output: 1},
+			{input: 72, duration: time.Second, output: 0.15},
 			{input: 71, duration: time.Second, output: 1},
+		},
+	},
+	// pd controller, demonstrating we need to prevent i windup before summing up output
+	{
+		p:   40.0,
+		i:   0,
+		d:   12.0,
+		max: 255, min: 0,
+		updates: []*testUpdate{
+			{setpoint: 90.0, input: 22.00, duration: time.Second, output: 255.00},
+			{input: 25.29, duration: time.Second, output: 255.00},
+			{input: 28.56, duration: time.Second, output: 255.00},
+			{input: 31.80, duration: time.Second, output: 255.00},
+			{input: 35.02, duration: time.Second, output: 255.00},
+			{input: 38.21, duration: time.Second, output: 255.00},
+			{input: 41.38, duration: time.Second, output: 255.00},
+			{input: 44.53, duration: time.Second, output: 255.00},
+			{input: 47.66, duration: time.Second, output: 255.00},
+			{input: 50.76, duration: time.Second, output: 255.00},
+			{input: 53.84, duration: time.Second, output: 255.00},
+			{input: 56.90, duration: time.Second, output: 255.00},
+			{input: 59.93, duration: time.Second, output: 255.00},
+			{input: 62.95, duration: time.Second, output: 255.00},
+			{input: 65.94, duration: time.Second, output: 255.00},
+			{input: 68.91, duration: time.Second, output: 255.00},
+			{input: 71.85, duration: time.Second, output: 255.00},
+			{input: 74.78, duration: time.Second, output: 255.00},
+			{input: 77.69, duration: time.Second, output: 255.00},
+			{input: 80.57, duration: time.Second, output: 255.00},
+			{input: 83.43, duration: time.Second, output: 228.48},
+			{input: 85.93, duration: time.Second, output: 132.80},
+			{input: 87.18, duration: time.Second, output: 97.80},
+			{input: 87.96, duration: time.Second, output: 72.24},
+			{input: 88.41, duration: time.Second, output: 58.20},
+			{input: 88.68, duration: time.Second, output: 49.56},
+			{input: 88.83, duration: time.Second, output: 45.00},
+			{input: 88.92, duration: time.Second, output: 42.12},
+			{input: 88.98, duration: time.Second, output: 40.08},
+			{input: 89.00, duration: time.Second, output: 39.76},
+			{input: 89.03, duration: time.Second, output: 38.44},
+			{input: 89.03, duration: time.Second, output: 38.80},
+			{input: 89.05, duration: time.Second, output: 37.76},
+			{input: 89.04, duration: time.Second, output: 38.52},
+			{input: 89.05, duration: time.Second, output: 37.88},
+			{input: 89.05, duration: time.Second, output: 38.00},
+			{input: 89.05, duration: time.Second, output: 38.00},
+			{input: 89.05, duration: time.Second, output: 38.00},
+			{input: 89.05, duration: time.Second, output: 38.00},
 		},
 	},
 	// panic test
@@ -95,12 +143,20 @@ type testUpdate struct {
 	output   float64
 }
 
+func round(v float64, decimals int) float64 {
+	var pow float64 = 1
+	for i := 0; i < decimals; i++ {
+		pow *= 10
+	}
+	return float64(int((v*pow)+0.5)) / pow
+}
+
 func (u *testUpdate) check(c *PIDController) error {
 	if u.setpoint != 0 {
 		c.Set(u.setpoint)
 	}
 	output := c.UpdateDuration(u.input, u.duration)
-	if output != u.output {
+	if round(output, 63) != round(u.output, 63) {
 		return fmt.Errorf("Bad output: %f != %f (%#v)", output, u.output, u)
 	}
 	return nil
